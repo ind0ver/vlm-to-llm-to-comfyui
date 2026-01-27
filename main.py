@@ -19,7 +19,7 @@ import instruct_templates
 
 INPUT_IMAGE_DIR = "./input_images"
 LOG_DIR = "./logs"
-WORKFLOW_JSON_PATH = "./MyImageToVideoWorkflowAPI.json"
+WORKFLOW_JSON_PATH = "./ImageToVideoWorkflowAPI.json"
 COMFYUI_PATH = ".../ComfyUI-portable/ComfyUI" # full path to ComfyUI-portable/ComfyUI
 COMFYUI_API_URL = "http://127.0.0.1:8188"
 
@@ -349,3 +349,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
