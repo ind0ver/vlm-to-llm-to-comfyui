@@ -1,24 +1,5 @@
-# vlm-to-llm-to-comfyui
-**Image recognition** → **Video idea generation** → **ComfyUI video generation via API** — all running locally on your PC.
-
-## Overview
-
-This tool processes images through three stages:
-1. **Image Description** - Uses a Vision-Language Model (VLM) to describe the image
-2. **Prompt Generation** - Uses an LLM to create video animation prompts
-3. **Video Generation** - Sends prompts to ComfyUI for rendering
-
-## Workflow
-
-```
-Input Images
-    ↓
-[VLM Model] → Image Descriptions
-    ↓
-[LLM Model] → Video Prompts
-    ↓
-[ComfyUI API] → Video Generation
-```
+### Image recognition → Video idea generation → ComfyUI video generation.
+#### ✔ All running locally.
 
 ## Features
 
@@ -28,43 +9,49 @@ Input Images
 - 🎬 Integration with ComfyUI workflow API
 - 📝 Comprehensive logging
 - 🧠 Smart memory management for GPU resources
+- 🎨 Designed for easy modification and experimentation
 
 ## Requirements
 
 - Python 3.8+
 - CUDA-capable GPU
-- ComfyUI installed and running
+- [ComfyUI-portable](https://github.com/Comfy-Org/ComfyUI) for video generation. Other versions not tested
 
 - Required models:
-  - image-to-text model [Moondream2](https://huggingface.co/vikhyatk/moondream2) for generating image descriptions
-  - a light [Qwen2.5-3B-Instruct-Q4_K_M](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF) LLM model to generate video ideas
-The models can be downloaded manually. In this case you can set paths to the models in the script.
+  - image-to-text model like [Moondream2](https://huggingface.co/vikhyatk/moondream2) for generating image descriptions
+  - a light [Qwen2.5-3B-Instruct-Q4_K_M](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF) LLM model is enough to generate video ideas
+- The models can be downloaded manually. In this case you can set paths to the models in the script.
 
 ## Installation
 
-1. Clone the repository:
+- Create a new folder, e.g. *comfy-video-prompter*
+- Inside the folder, run the following commands:
 ```bash
-git clone <your-repo-url>
-cd image-to-video-pipeline
+python -m venv .
 ```
-or download the .zip archive.
-
-2. Install dependencies:
-```bash
+```
+.\Scripts\activate
+```
+- Run the folloiwng command. This will download and install about 2~4 GB of packages, the biggest ones are for PyTorch and CUDA.
+```
 pip install -r requirements.txt
 ```
-
-3. Download required models:
-   - Moondream2 (automatically downloaded via Transformers, ~4GB in size)
-   - Qwen 2.5 3B Instruct (can be automatically downloaded via Transformers, ~2GB in size)
   
 ## Configuration
 
-Open main.py and adjust:
+### Required AI Models:
+On first run, the project will download these models:
+- Moondream2 (image-to-text recognition, ~4GB in size)
+- Qwen 2.5 3B Instruct (LLM for generating video ideas, ~2GB in size)
+
+Or you can use already downloaded models if you have them.
+- Open main.py and adjust:
 ```
-COMFYUI_PATH = ".../ComfyUI-portable/ComfyUI" # full path to your ComfyUI-portable/ComfyUI
-COMFYUI_API_URL = "http://127.0.0.1:8188"
-LLM_MODEL_PATH = "Qwen/Qwen2.5-3B-Instruct-GGUF" # or you can use a full path to your local GGUF model file
+LLM_MODEL_PATH = "Qwen/Qwen2.5-3B-Instruct-GGUF"
+```
+to the full path of the GGUF model on your drive, for example:
+```
+LLM_MODEL_PATH = r"C:\AI\text-generation-webui\user_data\models\qwen2.5-3b-instruct-q4_k_m-qwen.gguf"
 ```
 
 ### ComfyUI Workflow Node IDs
@@ -73,12 +60,9 @@ Must be changed according to your workflow. Reference the provided workflow IDs.
 
 ## Usage
 
-1. Place your images in the `input_images` folder
+1. Place your images in the `input_images` folder of this project. They will be copied to Comfy's input folder in the process.
 
-2. Ensure ComfyUI is running:
-```bash
-# Start ComfyUI on http://127.0.0.1:8188
-```
+2. Ensure ComfyUI is running, usually on http://127.0.0.1:8188.
 
 3. Run the script:
 ```bash
@@ -88,19 +72,4 @@ python main.py
 4. Monitor progress:
    - Console output shows real-time progress
    - Logs saved to `logs/` directory
-   - Video generation happens in ComfyUI interface
-
-## Notes
-
-- All models can be local or remote (HuggingFace)
-
-- Designed for easy modification and experimentation
-
-## Acknowledgments
-
-- [Moondream2](https://huggingface.co/vikhyatk/moondream2) for image recognition
-- [Qwen](https://huggingface.co/Qwen) for text generation
-- [ComfyUI](https://github.com/Comfy-Org/ComfyUI) for video generation
-
-## License
-MIT — do whatever you want, attribution appreciated.
+   - Video generation happens in ComfyUI and can be monitored in "View Job History" and "Console"
