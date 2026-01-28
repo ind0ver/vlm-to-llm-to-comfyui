@@ -83,3 +83,6 @@ python main.py
    - Console output shows real-time progress
    - Logs saved to `logs/` directory
    - Video generation happens in ComfyUI and can be monitored in "View Job History" and "Console"
+
+## License
+MIT — do whatever you want, attribution appreciated.
