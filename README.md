@@ -10,6 +10,16 @@
 - 📝 Comprehensive logging
 - 🧠 Smart memory management for GPU resources
 - 🎨 Designed for easy modification and experimentation
+- 
+## Example
+#### Input Image
+![sphoto_2026-01-28_14-30-13](https://github.com/user-attachments/assets/8dfd6e00-4433-4462-bdaa-57d27102bca4)
+#### Generated description
+- A white-winged angel, wearing a flowing white dress, is kneeling on the dark blue water, its hands resting gently on the calm surface. The angel appears to be mourning or in deep thought, with a somber expression. The sky above is a deep blue, dotted with dark grey clouds, and sunlight pierces through the clouds, casting a warm glow on the angel and the water. Several white feathers are scattered around the angel and on the water's surface, adding to the eerie, dreamlike atmosphere of the scene.
+#### Generated video idea
+- An angel in a white dress with white wings is kneeling upon a dark blue water surface, lightly touching it with lowered hands. Light breaks through heavy, shadowed clouds overhead, bathing the figure and the water in a soft, warm glow. White feathers drift and rest across the scene, reinforcing a quiet, otherworldly atmosphere. The mood feels somber and ethereal, and the camera stays completely fixed.
+#### Final video result
+https://github.com/user-attachments/assets/1f3bf24b-a5a7-4969-ab57-002bf36c85db
 
 ## Requirements
 
