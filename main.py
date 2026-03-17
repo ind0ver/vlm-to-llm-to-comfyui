@@ -8,6 +8,7 @@ import gc
 import shutil
 import random
 import time
+import math
 from typing import List, Dict, Any
 from dataclasses import dataclass
 from PIL import Image
@@ -20,19 +21,37 @@ import instruct_templates
 INPUT_IMAGE_DIR = "./input_images"
 LOG_DIR = "./logs"
 WORKFLOW_JSON_PATH = "./ImageToVideoWorkflowAPI.json"
-COMFYUI_PATH = ".../ComfyUI-portable/ComfyUI" # full path to ComfyUI-portable/ComfyUI
+COMFYUI_PATH = r"D:\AI\ComfyUI-portable\ComfyUI" # full path to ComfyUI-portable/ComfyUI
 COMFYUI_API_URL = "http://127.0.0.1:8188"
 
 # Models
-LLM_MODEL_PATH = "Qwen/Qwen2.5-3B-Instruct-GGUF" # or you can use a full path to your local GGUF model file
-llm_model_types = {"llama": "llama", "qwen": "qwen"}
-llm_model_type = llm_model_types["qwen"]
+MODEL_WAN_HIGH = "wan2.2\\wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors" # "models/unet" folder
+MODEL_WAN_LOW = "wan2.2\\wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors" # "models/unet" folder
+WAN_CLIP_NAME = "umt5_xxl_fp8_e4m3fn_scaled.safetensors" # "models/text_encoders" folder
+WAN_VAE_NAME = "wan_2.1_vae.safetensors" # "models/vae" folder
+LLM_MODEL_PATH = r"D:\AI\text-generation-webui-main\user_data\models\Qwen2.5-3B-Instruct-Q4_K_M-bartowski.gguf" # full path to your local GGUF model file
 VLM_MODEL_NAME = "vikhyatk/moondream2" # or you can use locally downloaded image-to-text model
 
+# WAN LORAs relative to "models\loras" folder
+LORA_HIGH_PATH = "WAN22\\wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors"
+LORA_LOW_PATH = "WAN22\\wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"
+
+# Generation settings
+FPS = 16 # optimal fps = 16
+VIDEO_LENGHT = 6 # in seconds, recommended value is 6
+
 # Replace these node IDs with your actual workflow node IDs
-NODE_LOAD_IMAGE = "160" # node Load Image - the input image for the video
+NODE_WAN_HIGH = "95"
+NODE_WAN_LOW = "96"
+NODE_LORA_HIGH = "230" # node for High Lora
+NODE_LORA_LOW = "231" # node for Low Lora
+NODE_CLIP_NAME = "84"
+NODE_VAE_NAME = "90"
+NODE_LOAD_IMAGE = "203" # node Load Image - the input image for the video
 NODE_POSITIVE_PROMPT = "93" # node Positive Prompt - for the video description
-NODE_VIDEO_COMBINE = "169"  # node Video Combine by VHS - for the saved video file name
+NODE_VIDEO_COMBINE = "220"  # node Save Video - for the saved video file name
+NODE_WAN_IMAGETOVIDEO = "98" # node WanImageToVideo
+NODE_CREATE_VIDEO = "207" # node Create Video
 
 # ==================== TYPE DEFINITIONS ====================
 
@@ -100,32 +119,33 @@ def load_workflow_base(workflow_path: str) -> dict:
     NODE_LOAD_IMAGE: ("inputs", "image"),
     NODE_POSITIVE_PROMPT: ("inputs", "text"),
     NODE_VIDEO_COMBINE: ("inputs", "filename_prefix"),
+
+    NODE_WAN_HIGH: ("inputs", "unet_name"),
+    NODE_WAN_LOW: ("inputs", "unet_name"),
+
+    NODE_LORA_HIGH: ("inputs", "lora_name"),
+    NODE_LORA_LOW: ("inputs", "lora_name"),
+
+    NODE_CLIP_NAME: ("inputs", "clip_name"),
+    NODE_VAE_NAME: ("inputs", "vae_name"),
+
+    NODE_CREATE_VIDEO: ("inputs", "fps"),
+
+    NODE_WAN_IMAGETOVIDEO: ("inputs", "width"),
+    NODE_WAN_IMAGETOVIDEO: ("inputs", "height"),
+    NODE_WAN_IMAGETOVIDEO: ("inputs", "length")
     }
     
     for node_id, (section, key) in required_nodes.items():
         if node_id not in workflow:
             raise KeyError(f"Workflow missing node '{node_id}'")
-    if section not in workflow[node_id]:
-        raise KeyError(f"Node '{node_id}' missing section '{section}'")
-    if key not in workflow[node_id][section]:
-        raise KeyError(f"Node '{node_id}' missing field '{section}.{key}'")
+        if section not in workflow[node_id]:
+            raise KeyError(f"Node '{node_id}' missing section '{section}'")
+        if key not in workflow[node_id][section]:
+            raise KeyError(f"Node '{node_id}' missing field '{section}.{key}'")
 
     return workflow
 
-
-def prepare_tasks() -> List[ComfyTask]:
-    comfy_tasks: List[ComfyTask] = []
-
-    image_files: List[str] = []
-    for ext in ['*.jpg', '*.jpeg', '*.png']:
-        image_files.extend(glob.glob(os.path.join(INPUT_IMAGE_DIR, ext)))
-    
-    for image_file in image_files:
-        image_filename = os.path.basename(image_file)
-        comfy_tasks.append(ComfyTask(input_image_path=image_file, input_image_filename=image_filename))
-
-    return comfy_tasks
-    
 # ==================== IMAGE-TO-TEXT MODEL ====================
 
 def load_i2t_model() -> Any:
@@ -206,14 +226,7 @@ def generate_prompt_for_video(model: Any, description: str) -> str:
     }
 
     try:
-        if llm_model_type == llm_model_types["llama"]:
-            prompt = instruct_templates.build_llama_prompt(description)
-        elif llm_model_type == llm_model_types["qwen"]:
-            prompt = instruct_templates.build_qwen_prompt(description)
-        else:
-            print(f"Unknown LLM model type: {llm_model_type}.")
-            return ""
-        
+        prompt = instruct_templates.build_qwen_prompt(description)        
         response = model(prompt, **params)
         return response["choices"][0]["text"].strip()
     except Exception as e:
@@ -234,6 +247,61 @@ def send_to_comfyui(workflow_data: Dict) -> bool:
     except requests.RequestException as e:
         log(f"ComfyUI request failed: {e}")
         return False
+
+
+def load_values_into_workflow(workflow: dict, comfy_task: ComfyTask) -> dict:
+    # Constant values
+    workflow[NODE_WAN_HIGH]["inputs"]["unet_name"] = MODEL_WAN_HIGH
+    workflow[NODE_WAN_LOW]["inputs"]["unet_name"] = MODEL_WAN_LOW
+    workflow[NODE_CLIP_NAME]["inputs"]["clip_name"] = WAN_CLIP_NAME
+    workflow[NODE_VAE_NAME]["inputs"]["vae_name"] = WAN_VAE_NAME
+    workflow[NODE_LORA_HIGH]["inputs"]["lora_name"] = LORA_HIGH_PATH
+    workflow[NODE_LORA_LOW]["inputs"]["lora_name"] = LORA_LOW_PATH
+
+    # Variables
+    workflow[NODE_LOAD_IMAGE]["inputs"]["image"] = comfy_task.input_image_filename # node Load Image - the input image for the video
+    workflow[NODE_POSITIVE_PROMPT]["inputs"]["text"] = comfy_task.prompt_for_video # node Positive Prompt - for the video description
+    workflow[NODE_VIDEO_COMBINE]["inputs"]["filename_prefix"] = f"{comfy_task.input_image_filename}_{run_start_time}" # node Video Combine by VHS
+    
+    # Resize to limit video size
+    image = Image.open(comfy_task.input_image_path)
+    width, height = clamp_video_size(image)
+    workflow[NODE_WAN_IMAGETOVIDEO]["inputs"]["width"] = width
+    workflow[NODE_WAN_IMAGETOVIDEO]["inputs"]["height"] = height
+
+    # Calculate number of frames
+    workflow[NODE_WAN_IMAGETOVIDEO]["inputs"]["length"] = calculate_number_of_frames(FPS, VIDEO_LENGHT)
+    workflow[NODE_CREATE_VIDEO]["inputs"]["fps"] = FPS
+
+    return workflow
+
+
+def prepare_tasks() -> List[ComfyTask]:
+    comfy_tasks: List[ComfyTask] = []
+
+    image_files: List[str] = []
+    for ext in ['*.jpg', '*.jpeg', '*.png']:
+        image_files.extend(glob.glob(os.path.join(INPUT_IMAGE_DIR, ext)))
+    
+    for image_file in image_files:
+        image_filename = os.path.basename(image_file)
+        comfy_tasks.append(ComfyTask(input_image_path=image_file, input_image_filename=image_filename))
+
+    return comfy_tasks
+    
+
+def clamp_video_size(image: Image.Image) -> tuple[int, int]:
+    image_width, image_height = image.size  # b = width, c = height
+    
+    width = round(math.sqrt(0.4 * 1_000_000 * (image_width / image_height)) / 16) * 16
+    
+    height = round((width / (image_width / image_height)) / 16) * 16
+    
+    return width, height
+
+
+def calculate_number_of_frames(fps: int, length: int) -> int:
+    return fps * length + 1
 
 # ==================== MAIN PROCESS ====================
 
@@ -326,9 +394,7 @@ def main() -> None:
         current_workflow = json.loads(json.dumps(workflow_base))
 
         # Change values in workflow before sending to Comfy
-        current_workflow[NODE_LOAD_IMAGE]["inputs"]["image"] = comfy_task.input_image_filename # node Load Image - the input image for the video
-        current_workflow[NODE_POSITIVE_PROMPT]["inputs"]["text"] = comfy_task.prompt_for_video # node Positive Prompt - for the video description
-        current_workflow[NODE_VIDEO_COMBINE]["inputs"]["filename_prefix"] = f"{comfy_task.input_image_filename}_{run_start_time}" # node Video Combine by VHS
+        current_workflow = load_values_into_workflow(current_workflow, comfy_task)
         
         # Send to ComfyUI
         task_sent_ok = send_to_comfyui(workflow_data=current_workflow)
@@ -349,4 +415,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

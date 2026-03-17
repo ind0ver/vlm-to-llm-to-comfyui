@@ -13,34 +13,16 @@
   "85": {
     "inputs": {
       "add_noise": "disable",
-      "noise_seed": [
-        "140",
-        0
-      ],
-      "steps": [
-        "127",
-        0
-      ],
-      "cfg": [
-        "127",
-        2
-      ],
-      "sampler_name": [
-        "127",
-        3
-      ],
-      "scheduler": [
-        "127",
-        4
-      ],
-      "start_at_step": [
-        "127",
-        1
-      ],
+      "noise_seed": 0,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 2,
       "end_at_step": 10000,
       "return_with_leftover_noise": "disable",
       "model": [
-        "122",
+        "164",
         0
       ],
       "positive": [
@@ -64,34 +46,16 @@
   "86": {
     "inputs": {
       "add_noise": "enable",
-      "noise_seed": [
-        "140",
-        0
-      ],
-      "steps": [
-        "127",
-        0
-      ],
-      "cfg": [
-        "127",
-        2
-      ],
-      "sampler_name": [
-        "127",
-        3
-      ],
-      "scheduler": [
-        "127",
-        4
-      ],
+      "noise_seed": 734484467872391,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
       "start_at_step": 0,
-      "end_at_step": [
-        "127",
-        1
-      ],
+      "end_at_step": 2,
       "return_with_leftover_noise": "enable",
       "model": [
-        "120",
+        "163",
         0
       ],
       "positive": [
@@ -128,19 +92,6 @@
       "title": "VAE Decode"
     }
   },
-  "89": {
-    "inputs": {
-      "text": "glowing, bloom, blurry, out of focus, low detail, bad anatomy, ugly, overexposed, underexposed, distorted face, extra limbs, cartoonish, 3d render artifacts, duplicate people, unnatural lighting, bad composition, missing shadows, low resolution, poorly textured, glitch, noise, grain, pixelated, static, motionless, still frame, stylized, artwork, painting, illustration, many people in background, three legs, walking backward, unnatural skin tone, discolored eyelid, red eyelids, closed eyes, poorly drawn hands, extra fingers, fused fingers, poorly drawn face, deformed, disfigured, malformed limbs, fog, mist",
-      "clip": [
-        "122",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Negative Prompt)"
-    }
-  },
   "90": {
     "inputs": {
       "vae_name": "wan_2.1_vae.safetensors"
@@ -152,9 +103,9 @@
   },
   "93": {
     "inputs": {
-      "text": "Image description will be here.",
+      "text": "the character is posing for the video",
       "clip": [
-        "120",
+        "230",
         1
       ]
     },
@@ -165,45 +116,36 @@
   },
   "95": {
     "inputs": {
-      "unet_name": "DasiwaWAN22I2V14BLightspeed_tastysinHighV81.safetensors",
+      "unet_name": "wan2.2\\wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
     "_meta": {
-      "title": "Load Diffusion Model"
+      "title": "Model High"
     }
   },
   "96": {
     "inputs": {
-      "unet_name": "DasiwaWAN22I2V14BLightspeed_tastysinLowV81.safetensors",
+      "unet_name": "wan2.2\\wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
     "_meta": {
-      "title": "Load Diffusion Model"
+      "title": "Model Low"
     }
   },
   "98": {
     "inputs": {
-      "width": [
-        "131",
-        0
-      ],
-      "height": [
-        "132",
-        0
-      ],
-      "length": [
-        "139",
-        0
-      ],
+      "width": 512,
+      "height": 768,
+      "length": 97,
       "batch_size": 1,
       "positive": [
         "93",
         0
       ],
       "negative": [
-        "89",
+        "232",
         0
       ],
       "vae": [
@@ -211,7 +153,7 @@
         0
       ],
       "start_image": [
-        "160",
+        "203",
         0
       ]
     },
@@ -220,223 +162,11 @@
       "title": "WanImageToVideo"
     }
   },
-  "116": {
-    "inputs": {
-      "sage_attention": "sageattn_qk_int8_pv_fp8_cuda++",
-      "allow_compile": false,
-      "model": [
-        "95",
-        0
-      ]
-    },
-    "class_type": "PathchSageAttentionKJ",
-    "_meta": {
-      "title": "Patch Sage Attention KJ"
-    }
-  },
-  "117": {
-    "inputs": {
-      "sage_attention": "sageattn_qk_int8_pv_fp8_cuda++",
-      "allow_compile": false,
-      "model": [
-        "96",
-        0
-      ]
-    },
-    "class_type": "PathchSageAttentionKJ",
-    "_meta": {
-      "title": "Patch Sage Attention KJ"
-    }
-  },
-  "120": {
-    "inputs": {
-      "PowerLoraLoaderHeaderWidget": {
-        "type": "PowerLoraLoaderHeaderWidget"
-      },
-      "lora_1": {
-        "on": false,
-        "lora": "",
-        "strength": 1
-      },
-      "➕ Add Lora": "",
-      "model": [
-        "163",
-        0
-      ],
-      "clip": [
-        "84",
-        0
-      ]
-    },
-    "class_type": "Power Lora Loader (rgthree)",
-    "_meta": {
-      "title": "Loras HIGH"
-    }
-  },
-  "122": {
-    "inputs": {
-      "PowerLoraLoaderHeaderWidget": {
-        "type": "PowerLoraLoaderHeaderWidget"
-      },
-      "lora_1": {
-        "on": false,
-        "lora": "",
-        "strength": 1
-      },
-      "➕ Add Lora": "",
-      "model": [
-        "164",
-        0
-      ],
-      "clip": [
-        "84",
-        0
-      ]
-    },
-    "class_type": "Power Lora Loader (rgthree)",
-    "_meta": {
-      "title": "Loras LOW"
-    }
-  },
-  "127": {
-    "inputs": {
-      "steps_total": 4,
-      "refiner_step": 2,
-      "cfg": 1,
-      "sampler_name": "euler",
-      "scheduler": "simple"
-    },
-    "class_type": "KSampler Config (rgthree)",
-    "_meta": {
-      "title": "Sampling"
-    }
-  },
-  "130": {
-    "inputs": {
-      "image": [
-        "160",
-        0
-      ]
-    },
-    "class_type": "GetImageSize",
-    "_meta": {
-      "title": "Get Image Size"
-    }
-  },
-  "131": {
-    "inputs": {
-      "expression": "round(sqrt(0.4 * 1000000 * (b / c)) / 16) * 16",
-      "b": [
-        "130",
-        0
-      ],
-      "c": [
-        "130",
-        1
-      ]
-    },
-    "class_type": "MathExpression|pysssss",
-    "_meta": {
-      "title": "Width 🐍"
-    }
-  },
-  "132": {
-    "inputs": {
-      "expression": "round((a / (b / c)) / 16) * 16",
-      "a": [
-        "131",
-        0
-      ],
-      "b": [
-        "130",
-        0
-      ],
-      "c": [
-        "130",
-        1
-      ]
-    },
-    "class_type": "MathExpression|pysssss",
-    "_meta": {
-      "title": "Height 🐍"
-    }
-  },
-  "138": {
-    "inputs": {
-      "value": 6
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Seconds"
-    }
-  },
-  "139": {
-    "inputs": {
-      "expression": "(round((a * b) / 8) * 8) +1",
-      "a": [
-        "173",
-        0
-      ],
-      "b": [
-        "138",
-        0
-      ]
-    },
-    "class_type": "MathExpression|pysssss",
-    "_meta": {
-      "title": "frames logic 🐍"
-    }
-  },
-  "140": {
-    "inputs": {
-      "seed": 231506555126515
-    },
-    "class_type": "easy seed",
-    "_meta": {
-      "title": "EasySeed"
-    }
-  },
-  "149": {
-    "inputs": {
-      "from_direction": "end",
-      "count": 1,
-      "image": [
-        "87",
-        0
-      ]
-    },
-    "class_type": "Pick From Batch (mtb)",
-    "_meta": {
-      "title": "Pick From Batch (mtb)"
-    }
-  },
-  "150": {
-    "inputs": {
-      "filename_prefix": "last_frames/LASTFRAME",
-      "images": [
-        "149",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Last Frame"
-    }
-  },
-  "160": {
-    "inputs": {
-      "image": "17659006390850.jpg"
-    },
-    "class_type": "LoadImage",
-    "_meta": {
-      "title": "Load Image"
-    }
-  },
   "163": {
     "inputs": {
       "shift": 5,
       "model": [
-        "116",
+        "230",
         0
       ]
     },
@@ -449,7 +179,7 @@
     "inputs": {
       "shift": 5,
       "model": [
-        "117",
+        "231",
         0
       ]
     },
@@ -458,50 +188,93 @@
       "title": "ModelSamplingSD3 Low"
     }
   },
-  "169": {
+  "203": {
     "inputs": {
-      "frame_rate": [
-        "173",
-        0
-      ],
-      "loop_count": 0,
-      "filename_prefix": "wan22",
-      "format": "video/h265-mp4",
-      "pix_fmt": "yuv420p10le",
-      "crf": 22,
-      "save_metadata": true,
-      "pingpong": false,
-      "save_output": true,
+      "image": "Flux2-Klein_00584_.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "207": {
+    "inputs": {
+      "fps": 16,
       "images": [
         "87",
         0
       ]
     },
-    "class_type": "VHS_VideoCombine",
+    "class_type": "CreateVideo",
     "_meta": {
-      "title": "Video Combine 🎥🅥🅗🅢"
+      "title": "Create Video"
     }
   },
-  "170": {
+  "220": {
     "inputs": {
-      "options": "Intermediate and Utility",
-      "filenames": [
-        "169",
+      "filename_prefix": "video/ComfyUI",
+      "format": "auto",
+      "codec": "auto",
+      "video-preview": "",
+      "video": [
+        "207",
         0
       ]
     },
-    "class_type": "VHS_PruneOutputs",
+    "class_type": "SaveVideo",
     "_meta": {
-      "title": "Prune Outputs 🎥🅥🅗🅢"
+      "title": "Save Video"
     }
   },
-  "173": {
+  "230": {
     "inputs": {
-      "value": 16
+      "lora_name": "WAN22\\wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "95",
+        0
+      ],
+      "clip": [
+        "84",
+        0
+      ]
     },
-    "class_type": "PrimitiveFloat",
+    "class_type": "LoraLoader",
     "_meta": {
-      "title": "FPS"
+      "title": "Load LoRA"
+    }
+  },
+  "231": {
+    "inputs": {
+      "lora_name": "WAN22\\wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "96",
+        0
+      ],
+      "clip": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  },
+  "232": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "231",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
     }
   }
 }
